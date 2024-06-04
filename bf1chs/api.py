@@ -1,5 +1,5 @@
 import os
-from abc import ABC
+from abc import ABC, abstractmethod
 from datetime import datetime
 from functools import wraps
 from io import BytesIO
@@ -86,7 +86,11 @@ class SourceAPI(BaseAPI, ABC):
     Base class for update source API. Basically it should be a Github-like API.
     """
 
-    def get_latest_asset(self, time_key: str, response: Optional[Response] = None):
+    @abstractmethod
+    def get_latest_asset(self):
+        raise NotImplementedError
+
+    def _get_latest_asset(self, time_key: str, response: Optional[Response] = None):
         """
         Get the latest release asset from the repo.
         """
@@ -132,7 +136,7 @@ class GithubAPI(SourceAPI):
         Get the latest release asset from the repo.
         """
         latest_asset_url, latest_version, latest_published_time, latest_log = (
-            super().get_latest_asset("published_at", response)
+            super()._get_latest_asset("published_at", response)
         )
         return (
             latest_asset_url,
@@ -156,7 +160,7 @@ class GiteeAPI(SourceAPI):
         """
         Get the latest release asset from the repo.
         """
-        return super().get_latest_asset("created_at", response)
+        return super()._get_latest_asset("created_at", response)
 
 
 class ParaTranzAPI(BaseAPI):
