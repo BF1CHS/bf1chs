@@ -6,16 +6,7 @@ import textwrap
 import webbrowser
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
-from api import (
-    GiteeAPI,
-    GithubAPI,
-    ParaTranzAPI,
-    ProxyError,
-    RequestException,
-    SourceAPI,
-    URLlib3RequestError,
-)
-from conflict import Conflicts
+from flamethrower.localization import Histogram, StringsBinary
 from InquirerPy import inquirer
 from InquirerPy.base.control import Choice
 from InquirerPy.separator import Separator
@@ -33,11 +24,20 @@ from rich.progress import (
 )
 from rich.table import Table
 from rich.theme import Theme
-from ttffont import TTFInfo
 
-from flamethrower.localization import Histogram, StringsBinary
+from bf1chs.api import (
+    GiteeAPI,
+    GithubAPI,
+    ParaTranzAPI,
+    ProxyError,
+    RequestException,
+    SourceAPI,
+    URLlib3RequestError,
+)
+from bf1chs.conflict import Conflicts
+from bf1chs.ttffont import TTFInfo
 
-VERSION = "v0.6.1"
+VERSION = "v0.6.2"
 PROJECT_ID = 8862
 REPO_NAME = "flamethrower"
 REPO_OWNER_GITHUB = "zyf722"
