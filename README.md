@@ -2,6 +2,8 @@
 > 本项目迁移自 [zyf722/flamethrower](https://github.com/zyf722/flamethrower)。
 > 
 > `v0.6.1` 及之前的版本请前往 [该仓库 Releases](https://github.com/zyf722/flamethrower/releases) 查看。
+> 
+> **两仓库间版本无法通过自动更新迁移，请手动下载本仓库最新版本以继续使用。**
 
 # BF1CHS: 战地风云 1 简体中文本地化工具箱
 
