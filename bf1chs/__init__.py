@@ -57,8 +57,6 @@ ARTIFACT_MANIFEST = {
     "legal.json": "额外动态本地化文件（法律）",
 }
 
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
 console = Console(
     theme=Theme(
         {
