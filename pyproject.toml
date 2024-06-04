@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "bf1chs"
+version = "v0.7.0"
+description = "Toolbox for BF1CHS project."
+authors = ["MaxMixAlex <MaxMixAlex@protonmail.com>"]
+license = "GPL-3.0"
+readme = "README.md"
+repository = "https://github.com/BF1CHS/bf1chs"
+keywords = ["Frostbite", "entertainment", "reverse engineering", "game development", "localization", "Simplified Chinese"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Intended Audience :: End Users/Desktop",
+    "Intended Audience :: Other Audience",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Topic :: Games/Entertainment",
+    "Natural Language :: Chinese (Simplified)"
+]
+
+[tool.poetry.scripts]
+bf1chs = "bf1chs.__main__:main"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "^2.31.0"
+python-dateutil = "^2.8.2"
+rich = "^13.7.0"
+inquirerpy = "^0.3.4"
+flammenwerfer = "^0.1.9"
+
+[tool.poetry.group.dev.dependencies]
+types-requests = "^2.31.0.10"
+nuitka = "^1.9.3"
+types-python-dateutil = "^2.8.19.20240106"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

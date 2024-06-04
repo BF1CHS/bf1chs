@@ -37,7 +37,7 @@ from bf1chs.api import (
 from bf1chs.conflict import Conflicts
 from bf1chs.ttffont import TTFInfo
 
-VERSION = "v0.6.2"
+VERSION = "v0.7.0"
 PROJECT_ID = 8862
 
 ARTIFACT_MANIFEST = {
