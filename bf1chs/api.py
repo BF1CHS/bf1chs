@@ -12,6 +12,10 @@ from requests import Response, Session
 from requests.exceptions import ProxyError, RequestException, SSLError  # noqa: F401
 from urllib3.exceptions import RequestError as URLlib3RequestError  # noqa: F401
 
+REPO_NAME = "bf1chs"
+REPO_OWNER = "BF1CHS"
+ASSET_NAME = "bf1chs.zip"
+
 
 # Decorator to wrap API.
 def api_call(endpoint: str, method: str, params: Optional[dict] = None):
@@ -82,9 +86,7 @@ class SourceAPI(BaseAPI, ABC):
     Base class for update source API. Basically it should be a Github-like API.
     """
 
-    def get_latest_asset(
-        self, time_key: str, response: Optional[Response] = None, asset_name: str = ""
-    ):
+    def get_latest_asset(self, time_key: str, response: Optional[Response] = None):
         """
         Get the latest release asset from the repo.
         """
@@ -98,7 +100,7 @@ class SourceAPI(BaseAPI, ABC):
         for release in response.json():
             if release["assets"]:
                 for asset in release["assets"]:
-                    if "name" in asset and asset_name in asset["name"]:
+                    if "name" in asset and ASSET_NAME in asset["name"]:
                         published_time = datetime.strptime(
                             release[time_key], "%Y-%m-%dT%H:%M:%S%z"
                         )
@@ -120,21 +122,17 @@ class GithubAPI(SourceAPI):
     Wrapper class to interact with Github API.
     """
 
-    def __init__(self, owner: str, repo: str) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.owner = owner
-        self.repo = repo
-        self.base_url = f"https://api.github.com/repos/{self.owner}/{self.repo}"
+        self.base_url = f"https://api.github.com/repos/{REPO_OWNER}/{REPO_NAME}"
 
     @api_call(endpoint="/releases", method="GET")
-    def get_latest_asset(
-        self, response: Optional[Response] = None, asset_name: str = ""
-    ):
+    def get_latest_asset(self, response: Optional[Response] = None):
         """
         Get the latest release asset from the repo.
         """
         latest_asset_url, latest_version, latest_published_time, latest_log = (
-            super().get_latest_asset("published_at", response, asset_name)
+            super().get_latest_asset("published_at", response)
         )
         return (
             latest_asset_url,
@@ -149,20 +147,16 @@ class GiteeAPI(SourceAPI):
     Wrapper class to interact with Gitee API.
     """
 
-    def __init__(self, owner: str, repo: str) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.owner = owner
-        self.repo = repo
-        self.base_url = f"https://gitee.com/api/v5/repos/{self.owner}/{self.repo}"
+        self.base_url = f"https://gitee.com/api/v5/repos/{REPO_OWNER}/{REPO_NAME}"
 
     @api_call(endpoint="/releases", method="GET")
-    def get_latest_asset(
-        self, response: Optional[Response] = None, asset_name: str = ""
-    ):
+    def get_latest_asset(self, response: Optional[Response] = None):
         """
         Get the latest release asset from the repo.
         """
-        return super().get_latest_asset("created_at", response, asset_name)
+        return super().get_latest_asset("created_at", response)
 
 
 class ParaTranzAPI(BaseAPI):
