@@ -168,6 +168,26 @@ class BF1ChsToolbox:
                 "默认动态本地化文件名，需以 .json 结尾。",
                 *Validator.filename_validator(".json"),
             ),
+            "localization.legalPath": (
+                "localization/legal",
+                "法律相关动态本地化文件存放路径，可为相对路径。",
+                *Validator.none_validator,
+            ),
+            "localization.legalFilename.eula": (
+                "BF1CHS-EULA_Battlefield1_PC_8.16.16.txt",
+                "用户许可协议文件名，需以 .txt 结尾。",
+                *Validator.filename_validator(".txt"),
+            ),
+            "localization.legalFilename.tos": (
+                "BF1CHS-BF1-EA-Terms_of_service-PC.txt",
+                "服务条款文件名，需以 .txt 结尾。",
+                *Validator.filename_validator(".txt"),
+            ),
+            "localization.legalFilename.privacy": (
+                "BF1CHS-BF1-EA-Privacy_Policy-PC.txt",
+                "隐私政策文件名，需以 .txt 结尾。",
+                *Validator.filename_validator(".txt"),
+            ),
             "localization.debugKeyMaxLength": (
                 8,
                 "调试模式下，注释中键的最大长度。",
@@ -519,6 +539,42 @@ class BF1ChsToolbox:
         Helper function to wrap multiline string correctly.
         """
         return textwrap.dedent(string)[:-1]
+
+    def _copy_to_assets(self, file_paths: List[str]):
+        if platform.system() == "Windows":
+            if self._rich_confirm(message="是否复制到 twinkle/assets 文件夹？"):
+                # Code from https://stackoverflow.com/questions/6227590/finding-the-users-my-documents-path/30924555
+
+                import ctypes.wintypes
+
+                buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
+                ctypes.windll.shell32.SHGetFolderPathW(None, 5, None, 0, buf)
+                asset_path = os.path.join(
+                    buf.value, "Battlefield 1", "twinkle", "assets"
+                )
+
+                if not os.path.exists(asset_path):
+                    console.print(
+                        f"[yellow]twinkle/assets 文件夹 {asset_path} 不存在。"
+                    )
+                else:
+                    import shutil
+
+                    for file_path in file_paths:
+                        file_name = os.path.basename(file_path)
+                        if os.path.exists(os.path.join(asset_path, file_name)):
+                            console.print(f"[yellow]文件 {file_name} 已存在。\n")
+                            if not self._rich_confirm(message="是否覆盖？"):
+                                continue
+                            console.print()
+
+                        try:
+                            shutil.copy(file_path, asset_path)
+                            console.print(
+                                f"[bold green]已复制文件 {file_path} 至 {asset_path}。\n"
+                            )
+                        except Exception as e:
+                            console.print(f"[bold red]复制失败：{e}\n")
 
     def __init__(self) -> None:
         console.print(
@@ -1172,38 +1228,60 @@ class BF1ChsToolbox:
                 f"[bold red]导出时发现 {conflict_count} 个译文不一致冲突，请手动检测冲突查看。\n"
             )
 
-        if platform.system() == "Windows":
-            if self._rich_confirm(message="是否复制到 twinkle/assets 文件夹？"):
-                # Code from https://stackoverflow.com/questions/6227590/finding-the-users-my-documents-path/30924555
+        self._copy_to_assets([twinkle_file_path])
 
-                import ctypes.wintypes
+    def _update_legal(self):
+        """
+        Generate legal dynamic files.
+        """
+        processed_path = os.path.abspath(self.config["paratranz.processedPath"])
+        if not os.path.exists(processed_path):
+            console.print(
+                f"[bold red]处理后文件目录 {processed_path} 不存在，请先替换汉化文件。"
+            )
+            return
 
-                buf = ctypes.create_unicode_buffer(ctypes.wintypes.MAX_PATH)
-                ctypes.windll.shell32.SHGetFolderPathW(None, 5, None, 0, buf)
-                asset_path = os.path.join(
-                    buf.value, "Battlefield 1", "twinkle", "assets"
-                )
+        legal_path = os.path.abspath(self.config["localization.legalPath"])
+        if not os.path.exists(legal_path):
+            os.makedirs(legal_path)
 
-                if not os.path.exists(asset_path):
-                    console.print(
-                        f"[yellow]twinkle/assets 文件夹 {asset_path} 不存在。"
+        eula_path = os.path.join(
+            legal_path, self.config["localization.legalFilename.eula"]
+        )
+        tos_path = os.path.join(
+            legal_path, self.config["localization.legalFilename.tos"]
+        )
+        privacy_path = os.path.join(
+            legal_path, self.config["localization.legalFilename.privacy"]
+        )
+
+        def _legal_runner():
+            with open(
+                os.path.join(processed_path, "legal.json"), "r", encoding="utf-8"
+            ) as f:
+                legal_dict = json.load(f)
+                with open(eula_path, "w", encoding="utf-8") as eula:
+                    eula.write(
+                        legal_dict["LEGAL_3ffda82a9bac26d0347d5fa5e3166e3e1de8ddf1"]
                     )
-                else:
-                    if os.path.exists(os.path.join(asset_path, twinkle_file_name)):
-                        console.print(f"[yellow]文件 {twinkle_file_name} 已存在。\n")
-                        if not self._rich_confirm(message="是否覆盖？"):
-                            return
-                        console.print()
 
-                    import shutil
+                with open(tos_path, "w", encoding="utf-8") as terms:
+                    terms.write(
+                        legal_dict["LEGAL_bedbfee4c8659e9f07c93402fe338ef6c07a95cb"]
+                    )
 
-                    try:
-                        shutil.copy(twinkle_file_path, asset_path)
-                        console.print(
-                            f"[bold green]已复制文件 {twinkle_file_name} 至 {asset_path}。\n"
-                        )
-                    except Exception as e:
-                        console.print(f"[bold red]复制失败：{e}\n")
+                with open(privacy_path, "w", encoding="utf-8") as privacy:
+                    privacy.write(
+                        legal_dict["LEGAL_e7d39754dc5798e2d47e68f811a15464c7e47e58"]
+                    )
+
+        self._rich_indeterminate_progress(
+            task_name="生成法律文件",
+            short_name="生成法律文件",
+            actor=_legal_runner,
+        )
+
+        self._copy_to_assets([eula_path, tos_path, privacy_path])
 
     def _res2ttf(self):
         """
@@ -1455,9 +1533,14 @@ class BF1ChsToolbox:
                                 "actor": self._update_histogram,
                             },
                             "twinkle": {
-                                "name": "更新 Frosty Editor 动态本地化 chunk 文件",
-                                "desc": "根据替换后的 .json 汉化文件生成可读取的动态本地化文件。",
+                                "name": "更新动态本地化文件",
+                                "desc": "根据替换后的 .json 汉化文件生成可读取的 .json 动态本地化文件。",
                                 "actor": self._update_twinkle,
+                            },
+                            "legal": {
+                                "name": "更新法律相关动态本地化文件",
+                                "desc": "根据替换后的 .json 汉化文件生成可读取的 .txt 动态本地化文件。",
+                                "actor": self._update_legal,
                             },
                         },
                     ),
