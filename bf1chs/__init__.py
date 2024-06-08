@@ -55,6 +55,7 @@ ARTIFACT_MANIFEST = {
     "bf4.json": "额外动态本地化文件（战地风云 4 相关）",
     "bfhl.json": "额外动态本地化文件（战地风云：硬仗相关）",
     "legal.json": "额外动态本地化文件（法律）",
+    "gameplay.json": "额外动态本地化文件（游玩）",
 }
 
 console = Console(
